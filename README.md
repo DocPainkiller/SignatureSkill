@@ -34,7 +34,7 @@ Allows you to configure actor-specific battle menus. This will override the Clas
 **Extra Commands** - This section is where you define define any extra battle menu commands that every actor can use. Say you wanted to re-create the Draw mechanic from Final Fantasy 8 that everyone loves, and when I say everyone, I literally mean everyone. You could define that here.
 
 ![Draw](/img/snap2.png)
-Oh God, no! Why!
+###### Oh God, no! Why!
 
 **Extra Command 1** - An extra skill that is placed in the battle menu for all characters
 
@@ -53,7 +53,7 @@ Oh God, no! Why!
 So Locke had steal but later on in the game, he could equip an item and upgrade it to Mug. How do you do that? That's simple too. Just define which weapons, armor or items will upgrade a Signature and/or Limit Break Skill.
 
 ![Mug](/img/snap3.png)
-Harold has equipped the Thieves Gloves to turn Steal into Mug
+###### Harold has equipped the Thieves Gloves to turn Steal into Mug
 
 **Weapon Upgrade Skills** - Contains a list of 3 parameters: Weapon, Original & Replace With.
 * Weapon - The weapon that will upgrade a Signature and/or Limit Break Skill if it is equipped by the character
