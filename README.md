@@ -109,6 +109,6 @@ Credit Frogboy in your work.
 
 ## Changelog
 
-Version 1.0 - Initial release
-Version 1.1 - Upgrade signature skills with item or equipped weapon/armor
-Version 2.0 - Added Limit Break skill and a host of new customization. Replaced use of Note Tags with plugin parameters. Broke backwards compatibility with version 1 plugin.
+* Version 1.0 - Initial release
+* Version 1.1 - Upgrade signature skills with item or equipped weapon/armor
+* Version 2.0 - Added Limit Break skill and a host of new customization. Replaced use of Note Tags with plugin parameters. Broke backwards compatibility with version 1 plugin.
