@@ -48,6 +48,17 @@ Allows you to configure actor-specific battle menus. This will override the Clas
 **Extra Command 2** - This works exactly like Extra Command 1. It will be placed after Extra Command 1 if both are assigned in the same position.
 
 
+### Help Text
+
+This plugin can enable the help window for the actors battle commands. These include Attack, Gaurd, Skill Types, Item and any of the skills you set this plugin up to add or swap in.  Typically, the description will be pulled from the skill itself as defined in the database.  Skill Type and Item need to be configured in this plugin as there is no description to pull.
+
+**Use Battle Help** - Enabled the help menu for actor battle commands.
+
+**Skill Type** - Configure text for the Skill Type command.  %1 will be replaced with the name of the Skill Type.
+
+**Item** - Configure text for the Item command.
+
+
 ### Skill Upgrades
 
 So Locke had steal but later on in the game, he could equip an item and upgrade it to Mug. How do you do that? That's simple too. Just define which weapons, armor or items will upgrade a Signature and/or Limit Break Skill.
@@ -112,3 +123,4 @@ Credit Frogboy in your work.
 * Version 1.0 - Initial release
 * Version 1.1 - Upgrade signature skills with item or equipped weapon/armor
 * Version 2.0 - Added Limit Break skill and a host of new customization. Replaced use of Note Tags with plugin parameters. Broke backwards compatibility with version 1 plugin.
+* Version 2.1 - Added help window for actor battle commands.
