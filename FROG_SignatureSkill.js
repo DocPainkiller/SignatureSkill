@@ -808,6 +808,7 @@
 	    this.onSelectAction();
 	};
 
+    // Help Window
     var aliasStartActorCommandSelection = Scene_Battle.prototype.startActorCommandSelection;
     Scene_Battle.prototype.startActorCommandSelection = function() {
         aliasStartActorCommandSelection.call(this);
@@ -819,7 +820,9 @@
     var aliasprocessCursorMove = Window_ActorCommand.prototype.processCursorMove;
     Window_ActorCommand.prototype.processCursorMove = function() {
         aliasprocessCursorMove.call(this);
-        this.updateHelp();
+        if (this.active) {
+            this.updateHelp();
+        }
     }
 
     Window_ActorCommand.prototype.updateHelp = function () {
@@ -829,6 +832,30 @@
             help = this._list[index].description;
         }
         this.parent.parent._helpWindow.setText(help);
+    }
+
+    var aliasSelectEnemySelection = Scene_Battle.prototype.selectEnemySelection;
+    Scene_Battle.prototype.selectEnemySelection = function() {
+        aliasSelectEnemySelection.call(this);
+        this._helpWindow.hide();
+    }
+
+    var aliasOnEnemyCancel = Scene_Battle.prototype.onEnemyCancel;
+    Scene_Battle.prototype.onEnemyCancel = function() {
+        aliasOnEnemyCancel.call(this);
+        this._helpWindow.show();
+    }
+
+    var aliasOnSkillCancel = Scene_Battle.prototype.onSkillCancel;
+    Scene_Battle.prototype.onSkillCancel = function() {
+        aliasOnSkillCancel.call(this);
+        this._helpWindow.show();
+    }
+
+    var aliasOnItemCancel = Scene_Battle.prototype.onItemCancel;
+    Scene_Battle.prototype.onItemCancel = function() {
+        aliasOnItemCancel.call(this);
+        this._helpWindow.show();
     }
 
     var aliasAddAttackCommand = Window_ActorCommand.prototype.addAttackCommand;
