@@ -4,11 +4,11 @@
 //=============================================================================
 
 /*:
- * @plugindesc v2.0 Adds a signature skill to the battle menu for an actor or class
+ * @plugindesc v2.1 Adds a signature skill to the battle menu for an actor or class
  * @author Frogboy
  *
  * @help
- * Signature Skill v2.0
+ * Signature Skill v2.1
  * Author Frogboy
  *
  * ============================================================================
@@ -96,6 +96,22 @@
  *
  * This works exactly like Extra Command 1.  It will be placed after Extra
  * Command 1 if both are assigned in the same position.
+ *
+ *
+ * Help Text
+ *
+ * This plugin can enable the help window for the actors battle commands. These
+ * include Attack, Gaurd, Skill Types, Item and any of the skills you set this
+ * plugin up to add or swap in.  Typically, the description will be pulled from
+ * the skill itself as defined in the database.  Skill Type and Item need to
+ * be configured in this plugin as there is no description to pull.
+ *
+ * Use Battle Help - Enabled the help menu for actor battle commands.
+ *
+ * Skill Type - Configure text for the Skill Type command.  %1 will be replaced
+ *              with the name of the Skill Type.
+ *
+ * Item - Configure text for the Item command.
  *
  *
  * Skill Upgrades
@@ -192,9 +208,11 @@
  * Version 2.0 - Added Limit Break skill and a host of new customizations.
  *               Replaced use of Note Tags with plugin parameters.
  *               Broke backwards compatibility with version 1 plugin.
+ * Version 2.1 - Added help window for actor battle commands.
  *
  * @param Signature Skills
  * @param Extra Commands
+ * @param Help Text
  * @param Skill Upgrades
  * @param TP Limit Breaks
  * @param Remove Commands
@@ -254,6 +272,26 @@
  * @value After Guard
  * @option After Item
  * @value After Item
+ *
+ * @param Use Battle Help
+ * @parent Help Text
+ * @desc The actor battle commands usually don't have a help window.  This adds one.
+ * @type boolean
+ * @default true
+ * @on Yes
+ * @off No
+ *
+ * @param Skill Type
+ * @parent Help Text
+ * @type string
+ * @desc Help text for Skill Type command.  %1 will be replaced with the name of the Skill Type.
+ * @default Use a %1 Skill
+ *
+ * @param Item
+ * @parent Help Text
+ * @type string
+ * @desc Help text for Item command.
+ * @default Use an item
  *
  * @param Weapon Upgrade Skills
  * @parent Skill Upgrades
@@ -479,6 +517,9 @@
 	var extraCommand1Position = prm['Extra Command 1 Position'] || "After Signature Skill";
 	var extraCommand2 = parseInt(prm['Extra Command 2']) || 0;
 	var extraCommand2Position = prm['Extra Command 2 Position'] || "After Skill Groups";
+    var useHelp = (prm['Use Battle Help'] === "true");
+    var skillTypeHelp = prm['Skill Type'].trim();
+    var itemHelp = prm['Item'].trim();
 	var useLimit = (prm['Activate'] === "true");
 	var limitReplace = prm['Limit Break Replaces'] || "Attack";
 	var removeAttack = (prm['Remove Attack'] === "true");
@@ -566,16 +607,16 @@
 
 			// Limit Break with No Replacement
 			if (args.limit.max && limitReplace == "None") {
-				this.addLimitCommand(limit.skill.name, true);
+				this.addLimitCommand(limit.skill.name, args.limit.skill.description, true);
 			}
 
 			// Attack
 			if (args.remove.attack === false) {
 				if (args.limit.max && limitReplace == "Attack") {
-					this.addLimitCommand(args.limit.skill.name, true);
+					this.addLimitCommand(args.limit.skill.name, args.limit.skill.description, true);
 				}
 				else if (args.replace.attack.skill) {
-					this.addAttackReplaceCommand(args.replace.attack.skill.name, args.replace.attack.enabled);
+					this.addAttackReplaceCommand(args.replace.attack.skill.name, args.replace.attack.skill.description, args.replace.attack.enabled);
 				}
 				else {
 					this.addAttackCommand();
@@ -590,7 +631,7 @@
 
 			// Signature Skill
 			if (args.limit.max && limitReplace == "Signature Skill") {
-				this.addLimitCommand(args.limit.skill.name, true);
+				this.addLimitCommand(args.limit.skill.name, args.limit.skill.description, true);
 			}
 			else {
 				var skill_id = getSignatureSkill(actor, "Signature Skill");
@@ -598,7 +639,7 @@
 					var skill = $dataSkills[skill_id];
 					if (skill) {
 						var enabled = (actor._mp >= skill.mpCost && actor._tp >= skill.tpCost);
-						this.addSignatureCommand(skill.name, enabled);
+						this.addSignatureCommand(skill.name, skill.description, enabled);
 					}
 				}
 			}
@@ -608,7 +649,7 @@
 
 			// Skill Groups
 			if (args.limit.max && limitReplace == "Skill Groups") {
-				this.addLimitCommand(args.limit.skill.name, true);
+				this.addLimitCommand(args.limit.skill.name, args.limit.skill.description, true);
 			}
 			else {
 				this.addSkillCommands();
@@ -620,10 +661,10 @@
 			// Guard, limit
 			if (args.remove.guard === false) {
 				if (args.limit.max && limitReplace == "Guard") {
-					this.addLimitCommand(args.limit.skill.name, true);
+					this.addLimitCommand(args.limit.skill.name, args.limit.skill.description, true);
 				}
 				else if (args.replace.guard.skill) {
-					this.addGuardReplaceCommand(args.replace.guard.skill.name, args.replace.guard.enabled);
+					this.addGuardReplaceCommand(args.replace.guard.skill.name, args.replace.guard.skill.description, args.replace.guard.enabled);
 				}
 				else {
 					this.addGuardCommand();
@@ -639,10 +680,10 @@
 			// Item
 			if (args.remove.item === false) {
 				if (args.limit.max && limitReplace == "Item") {
-					this.addLimitCommand(args.limit.skill.name, true);
+					this.addLimitCommand(args.limit.skill.name, args.limit.skill.description, true);
 				}
 				else if (args.replace.item.skill) {
-					this.addItemReplaceCommand(args.replace.item.skill.name, args.replace.item.enabled);
+					this.addItemReplaceCommand(args.replace.item.skill.name, args.replace.item.skill.description, args.replace.item.enabled);
 				}
 				else {
 					this.addItemCommand();
@@ -657,32 +698,39 @@
 		}
 	};
 
-	Window_ActorCommand.prototype.addSignatureCommand = function(name, enabled) {
+	Window_ActorCommand.prototype.addSignatureCommand = function(name, description, enabled) {
 		this.addCommand(name, 'signature', enabled);
+        this._list[this._list.length - 1].description = description;
 	};
 
-	Window_ActorCommand.prototype.addLimitCommand = function(name, enabled) {
+	Window_ActorCommand.prototype.addLimitCommand = function(name, description, enabled) {
 		this.addCommand(name, 'limit', enabled);
+        this._list[this._list.length - 1].description = description;
 	};
 
-	Window_ActorCommand.prototype.addAttackReplaceCommand = function(name, enabled) {
+	Window_ActorCommand.prototype.addAttackReplaceCommand = function(name, description, enabled) {
 		this.addCommand(name, 'attackReplace', enabled);
+        this._list[this._list.length - 1].description = description;
 	};
 
-	Window_ActorCommand.prototype.addGuardReplaceCommand = function(name, enabled) {
+	Window_ActorCommand.prototype.addGuardReplaceCommand = function(name, description, enabled) {
 		this.addCommand(name, 'guardReplace', enabled);
+        this._list[this._list.length - 1].description = description;
 	};
 
-	Window_ActorCommand.prototype.addItemReplaceCommand = function(name, enabled) {
+	Window_ActorCommand.prototype.addItemReplaceCommand = function(name, description, enabled) {
 		this.addCommand(name, 'itemReplace', enabled);
+        this._list[this._list.length - 1].description = description;
 	};
 
-	Window_ActorCommand.prototype.addExtraCommand1 = function(name, enabled) {
+	Window_ActorCommand.prototype.addExtraCommand1 = function(name, description, enabled) {
 		this.addCommand(name, 'extra1', enabled);
+        this._list[this._list.length - 1].description = description;
 	};
 
-	Window_ActorCommand.prototype.addExtraCommand2 = function(name, enabled) {
+	Window_ActorCommand.prototype.addExtraCommand2 = function(name, description, enabled) {
 		this.addCommand(name, 'extra2', enabled);
+        this._list[this._list.length - 1].description = description;
 	};
 
 	Scene_Battle.prototype.commandSignatureSkill = function() {
@@ -760,29 +808,88 @@
 	    this.onSelectAction();
 	};
 
+    var aliasStartActorCommandSelection = Scene_Battle.prototype.startActorCommandSelection;
+    Scene_Battle.prototype.startActorCommandSelection = function() {
+        aliasStartActorCommandSelection.call(this);
+        if (useHelp) {
+            this._helpWindow.show();
+        }
+    }
+
+    var aliasprocessCursorMove = Window_ActorCommand.prototype.processCursorMove;
+    Window_ActorCommand.prototype.processCursorMove = function() {
+        aliasprocessCursorMove.call(this);
+        this.updateHelp();
+    }
+
+    Window_ActorCommand.prototype.updateHelp = function () {
+        var index = this.index();
+        var help = "";
+        if (this._list[index] && this._list[index].description) {
+            help = this._list[index].description;
+        }
+        this.parent.parent._helpWindow.setText(help);
+    }
+
+    var aliasAddAttackCommand = Window_ActorCommand.prototype.addAttackCommand;
+    Window_ActorCommand.prototype.addAttackCommand = function() {
+        aliasAddAttackCommand.call(this);
+        var skill = $dataSkills[1];
+        this._list[this._list.length - 1].description = skill.description;
+    }
+
+    var aliasAddSkillCommands = Window_ActorCommand.prototype.addSkillCommands;
+    Window_ActorCommand.prototype.addSkillCommands = function() {
+        aliasAddSkillCommands.call(this);
+        var self = this;
+        var skillTypes = this._actor.addedSkillTypes();
+        skillTypes.sort(function(a, b) {
+            return a - b;
+        });
+        var skillTypeCount = skillTypes.length;
+        skillTypes.forEach(function(stypeId) {
+            var name = $dataSystem.skillTypes[stypeId];
+            self._list[self._list.length - skillTypeCount].description = skillTypeHelp.replace('%1', name);
+            skillTypeCount--;
+        }, this);
+    };
+
+    var aliasAddGuardCommand = Window_ActorCommand.prototype.addGuardCommand;
+    Window_ActorCommand.prototype.addGuardCommand = function() {
+        aliasAddGuardCommand.call(this);
+        var skill = $dataSkills[2];
+        this._list[this._list.length - 1].description = skill.description;
+    }
+
+    var aliasAddItemCommand = Window_ActorCommand.prototype.addItemCommand;
+    Window_ActorCommand.prototype.addItemCommand = function() {
+        aliasAddItemCommand.call(this);
+        this._list[this._list.length - 1].description = itemHelp;
+    }
+
 	function dropExtraCommands(self, position, limit) {
 		if (extraCommand1 && extraCommand1Position == position) {
 			if (limit.max && limitReplace == "Extra Command 1") {
-				self.addLimitCommand(limit.skill.name, true);
+				self.addLimitCommand(limit.skill.name, args.limit.skill.description, true);
 			}
 			else {
 				var skill = $dataSkills[extraCommand1];
 				if (skill) {
 					var enabled = (self._actor._mp >= skill.mpCost && self._actor._tp >= skill.tpCost);
-					self.addExtraCommand1(skill.name, enabled);
+					self.addExtraCommand1(skill.name, skill.desccription, enabled);
 				}
 			}
 		}
 
 		if (extraCommand2 && extraCommand2Position == position) {
 			if (limit.max && limitReplace == "Extra Command 2") {
-				self.addLimitCommand(limit.skill.name, true);
+				self.addLimitCommand(limit.skill.name, args.limit.skill.description, true);
 			}
 			else {
 				var skill = $dataSkills[extraCommand2];
 				if (skill) {
 					var enabled = (self._actor._mp >= skill.mpCost && self._actor._tp >= skill.tpCost);
-					self.addExtraCommand2(skill.name, enabled);
+					self.addExtraCommand2(skill.name, skill.desccription, enabled);
 				}
 			}
 		}
